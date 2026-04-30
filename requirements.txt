@@ -1,0 +1,23 @@
+# Core
+numpy
+pandas
+
+# ML / DL
+tensorflow
+scikit-learn
+
+# Experiment tracking
+mlflow
+
+# Hyperparameter tuning
+optuna
+
+# Pipeline (next step)
+dvc
+
+# API (later)
+fastapi
+uvicorn
+
+# Utilities
+pyyaml

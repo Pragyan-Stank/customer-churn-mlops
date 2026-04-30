@@ -1,0 +1,32 @@
+# src/config/params.yaml
+
+model:
+  learning_rate_min: 0.00001
+  learning_rate_max: 0.01
+  units_min: 32
+  units_max: 128
+  dropout_min: 0.1
+  dropout_max: 0.5
+  batch_size: [16, 32, 64]
+  epochs: 20
+
+training:
+  n_trials: 20
+  random_seed: 42
+
+evaluation:
+  threshold_auc: 0.80
+
+mlflow:
+  tracking_uri: "http://127.0.0.1:5000"
+  experiment_name: "customer-churn-deployment"
+
+model_registry:
+  model_name: "customer-churn-model"
+  alias: "champion"
+
+data:
+  raw_path: "data/raw/Churn_Modelling.csv"
+  ingested_path: "data/interim/ingested.csv"
+  train_path: "data/processed/train.pkl"
+  test_path: "data/processed/test.pkl"
