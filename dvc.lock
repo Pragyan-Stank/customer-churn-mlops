@@ -1,0 +1,105 @@
+schema: '2.0'
+stages:
+  ingest:
+    cmd: python src/data/ingestion.py
+    deps:
+    - path: data/raw/Churn_Modelling.csv
+      hash: md5
+      md5: 496aee8fbfdfa1dfb6daa9dbca5d1a01
+      size: 684858
+    - path: src/config/params.yaml
+      hash: md5
+      md5: dcd9884737c2e1cbe318b7536fa5b7f1
+      size: 653
+    - path: src/data/ingestion.py
+      hash: md5
+      md5: 3ef1494cf8c4f7af1496ad12c4ca2154
+      size: 735
+    outs:
+    - path: data/interim/ingested.csv
+      hash: md5
+      md5: 7daed9d3555cdd5707052e4f42ebd139
+      size: 479204
+  preprocess:
+    cmd: python src/data/preprocessing.py
+    deps:
+    - path: data/interim/ingested.csv
+      hash: md5
+      md5: 7daed9d3555cdd5707052e4f42ebd139
+      size: 479204
+    - path: src/config/params.yaml
+      hash: md5
+      md5: dcd9884737c2e1cbe318b7536fa5b7f1
+      size: 653
+    - path: src/data/preprocessing.py
+      hash: md5
+      md5: 42b36379fb7b02121c35c0e772dc05f3
+      size: 1582
+    outs:
+    - path: data/processed/test.pkl
+      hash: md5
+      md5: d6c506f9fff6f872351393822d9da4f9
+      size: 192233
+    - path: data/processed/train.pkl
+      hash: md5
+      md5: 6d6a7c4e5a95679e5d737403dfea8fac
+      size: 768233
+  train:
+    cmd: python src/model/train.py
+    deps:
+    - path: data/processed/test.pkl
+      hash: md5
+      md5: d6c506f9fff6f872351393822d9da4f9
+      size: 192233
+    - path: data/processed/train.pkl
+      hash: md5
+      md5: 6d6a7c4e5a95679e5d737403dfea8fac
+      size: 768233
+    - path: src/config/params.yaml
+      hash: md5
+      md5: dcd9884737c2e1cbe318b7536fa5b7f1
+      size: 653
+    - path: src/model/train.py
+      hash: md5
+      md5: 163efa50b0ae0b8e7f50842d2fb78bf5
+      size: 5123
+    outs:
+    - path: artifacts/train_output.json
+      hash: md5
+      md5: 8ac2ac13c72d076fd0a1dc05ea3c4306
+      size: 87
+  evaluate:
+    cmd: python src/model/evaluate.py
+    deps:
+    - path: artifacts/train_output.json
+      hash: md5
+      md5: 8ac2ac13c72d076fd0a1dc05ea3c4306
+      size: 87
+    - path: src/config/params.yaml
+      hash: md5
+      md5: dcd9884737c2e1cbe318b7536fa5b7f1
+      size: 653
+    - path: src/model/evaluate.py
+      hash: md5
+      md5: bd0b6465b95af4c3bf5b3ab7e2bc47d3
+      size: 1718
+    outs:
+    - path: artifacts/eval_output.json
+      hash: md5
+      md5: fe2e5a34b2f057ea55e0ba0ef2915bb1
+      size: 129
+  register:
+    cmd: python src/model/register.py
+    deps:
+    - path: artifacts/eval_output.json
+      hash: md5
+      md5: fe2e5a34b2f057ea55e0ba0ef2915bb1
+      size: 129
+    - path: src/config/params.yaml
+      hash: md5
+      md5: dcd9884737c2e1cbe318b7536fa5b7f1
+      size: 653
+    - path: src/model/register.py
+      hash: md5
+      md5: 0563756dd3e6e48cc1de3f859c3f2677
+      size: 2129

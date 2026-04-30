@@ -1,0 +1,46 @@
+stages:
+
+  ingest:
+    cmd: python src/data/ingestion.py
+    deps:
+      - src/data/ingestion.py
+      - src/config/params.yaml
+      - data/raw/Churn_Modelling.csv
+    outs:
+      - data/interim/ingested.csv
+
+  preprocess:
+    cmd: python src/data/preprocessing.py
+    deps:
+      - src/data/preprocessing.py
+      - data/interim/ingested.csv
+      - src/config/params.yaml
+    outs:
+      - data/processed/train.pkl
+      - data/processed/test.pkl
+
+  train:
+    cmd: python src/model/train.py
+    deps:
+      - src/model/train.py
+      - data/processed/train.pkl
+      - data/processed/test.pkl
+      - src/config/params.yaml
+    outs:
+      - artifacts/train_output.json
+
+  evaluate:
+    cmd: python src/model/evaluate.py
+    deps:
+      - src/model/evaluate.py
+      - artifacts/train_output.json
+      - src/config/params.yaml
+    outs:
+      - artifacts/eval_output.json
+
+  register:
+    cmd: python src/model/register.py
+    deps:
+      - src/model/register.py
+      - artifacts/eval_output.json
+      - src/config/params.yaml
