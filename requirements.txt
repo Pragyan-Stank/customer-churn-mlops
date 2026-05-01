@@ -23,3 +23,5 @@ uvicorn
 pyyaml
 
 python-multipart
+
+dvc-s3
