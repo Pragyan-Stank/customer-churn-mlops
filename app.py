@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from pydantic import BaseModel, Field
 import mlflow
-import mlflow.tensorflow
+import tensorflow
 import numpy as np
 from typing import List
 

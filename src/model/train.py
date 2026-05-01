@@ -87,7 +87,7 @@ def objective(trial, X_train, y_train, X_val, y_val):
             epochs=MODEL_CONFIG["epochs"],
             batch_size=params["batch_size"],
             callbacks=[early_stop],
-            verbose=0
+            verbose=1
         )
 
         val_auc = max(history.history["val_auc"])
