@@ -1,0 +1,17 @@
+venv/
+__pycache__/
+*.pyc
+*.pyo
+
+data/
+artifacts/
+mlruns/
+mlflow.db
+
+.dvc/
+.dvc/cache/
+
+.git/
+.gitignore
+
+*.log

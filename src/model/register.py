@@ -13,7 +13,7 @@ with open("src/config/params.yaml", "r") as f:
     config = yaml.safe_load(f)
 
 MLFLOW_CONFIG = config["mlflow"]
-REGISTRY_CONFIG = config["model_registry"]
+REGISTRY_CONFIG = config["registry"]
 
 
 # -------------------------------

@@ -1,46 +1,60 @@
 stages:
 
   ingest:
-    cmd: venv\Scripts\python.exe src/data/ingestion.py
+    cmd: python src/data/ingestion.py
     deps:
       - src/data/ingestion.py
-      - src/config/params.yaml
       - data/raw/Churn_Modelling.csv
+    params:
+      - data
     outs:
       - data/interim/ingested.csv
 
   preprocess:
-    cmd: venv\Scripts\python.exe src/data/preprocessing.py
+    cmd: python src/data/preprocessing.py
     deps:
       - src/data/preprocessing.py
       - data/interim/ingested.csv
-      - src/config/params.yaml
+    params:
+      - preprocess
     outs:
       - data/processed/train.pkl
       - data/processed/test.pkl
 
   train:
-    cmd: venv\Scripts\python.exe src/model/train.py
+    cmd: python src/model/train.py
     deps:
       - src/model/train.py
       - data/processed/train.pkl
       - data/processed/test.pkl
-      - src/config/params.yaml
+    params:
+      - model
+      - training
     outs:
       - artifacts/train_output.json
 
   evaluate:
-    cmd: venv\Scripts\python.exe src/model/evaluate.py
+    cmd: python src/model/evaluate.py
     deps:
       - src/model/evaluate.py
       - artifacts/train_output.json
-      - src/config/params.yaml
+    params:
+      - evaluation
     outs:
       - artifacts/eval_output.json
 
   register:
-    cmd: venv\Scripts\python.exe src/model/register.py
+    cmd: python src/model/register.py
     deps:
       - src/model/register.py
       - artifacts/eval_output.json
-      - src/config/params.yaml
+    params:
+      - registry
+
+  export_model:
+    cmd: python src/model/export_model.py
+    deps:
+      - src/model/export_model.py
+    outs:
+      - model/churn_model.keras
+      - model/metadata.json
