@@ -21,3 +21,5 @@ uvicorn
 
 # Utilities
 pyyaml
+
+python-multipart

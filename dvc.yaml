@@ -1,7 +1,7 @@
 stages:
 
   ingest:
-    cmd: python src/data/ingestion.py
+    cmd: venv\Scripts\python.exe src/data/ingestion.py
     deps:
       - src/data/ingestion.py
       - src/config/params.yaml
@@ -10,7 +10,7 @@ stages:
       - data/interim/ingested.csv
 
   preprocess:
-    cmd: python src/data/preprocessing.py
+    cmd: venv\Scripts\python.exe src/data/preprocessing.py
     deps:
       - src/data/preprocessing.py
       - data/interim/ingested.csv
@@ -20,7 +20,7 @@ stages:
       - data/processed/test.pkl
 
   train:
-    cmd: python src/model/train.py
+    cmd: venv\Scripts\python.exe src/model/train.py
     deps:
       - src/model/train.py
       - data/processed/train.pkl
@@ -30,7 +30,7 @@ stages:
       - artifacts/train_output.json
 
   evaluate:
-    cmd: python src/model/evaluate.py
+    cmd: venv\Scripts\python.exe src/model/evaluate.py
     deps:
       - src/model/evaluate.py
       - artifacts/train_output.json
@@ -39,7 +39,7 @@ stages:
       - artifacts/eval_output.json
 
   register:
-    cmd: python src/model/register.py
+    cmd: venv\Scripts\python.exe src/model/register.py
     deps:
       - src/model/register.py
       - artifacts/eval_output.json
