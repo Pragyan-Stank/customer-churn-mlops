@@ -53,9 +53,16 @@ def preprocess():
     with open(test_output, "wb") as f:
         pickle.dump((X_test_trf, y_test), f)
 
+    # Save scaler for inference
+    scaler_path = "model/scaler.pkl"
+    os.makedirs(os.path.dirname(scaler_path), exist_ok=True)
+    with open(scaler_path, "wb") as f:
+        pickle.dump(scaler, f)
+
     print("Preprocessing complete!")
     print(f"Train data saved to: {train_output}")
     print(f"Test data saved to: {test_output}")
+    print(f"Scaler saved to: {scaler_path}")
 
 
 if __name__ == "__main__":

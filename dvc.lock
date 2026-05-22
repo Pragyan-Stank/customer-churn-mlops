@@ -32,8 +32,8 @@ stages:
       size: 479204
     - path: src/data/preprocessing.py
       hash: md5
-      md5: 42b36379fb7b02121c35c0e772dc05f3
-      size: 1582
+      md5: 6d9e174bcd4bb6ebe1a79ce9eb4d1d47
+      size: 1835
     params:
       params.yaml:
         preprocess:
