@@ -7,8 +7,8 @@ WORKDIR /app
 # ── Layer caching optimisation ──
 # Copy only requirements first so Docker re-uses this layer
 # on every rebuild that does NOT change requirements.txt.
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+COPY requirements.inference.txt .
+RUN pip install --no-cache-dir -r requirements.inference.txt
 
 # ── Copy application source ──
 # .dockerignore excludes: venv/, data/, .git/, mlruns/, etc.

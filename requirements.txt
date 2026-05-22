@@ -12,10 +12,10 @@ mlflow
 # Hyperparameter tuning
 optuna
 
-# Pipeline (next step)
+# Pipeline
 dvc
 
-# API (later)
+# API
 fastapi
 uvicorn
 
