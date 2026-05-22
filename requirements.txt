@@ -2,9 +2,10 @@
 numpy
 pandas
 
-# ML / DL
-tensorflow
+# ML
+xgboost
 scikit-learn
+joblib
 
 # Experiment tracking
 mlflow

@@ -1,10 +1,11 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
-import tensorflow as tf
 import numpy as np
 from typing import List
 import os
+import pickle
+import joblib
 
 app = FastAPI()
 
@@ -18,12 +19,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-import pickle
-
 # Load model and scaler from local disk (exported once via export_model.py / preprocess.py)
 # This avoids MLflow artifact path issues inside Docker
-MODEL_PATH = os.getenv("MODEL_PATH", "model/churn_model.keras")
-model = tf.keras.models.load_model(MODEL_PATH)
+MODEL_PATH = os.getenv("MODEL_PATH", "model/churn_model.pkl")
+model = joblib.load(MODEL_PATH)
 print(f"Model loaded successfully from: {MODEL_PATH}")
 
 SCALER_PATH = os.getenv("SCALER_PATH", "model/scaler.pkl")
@@ -44,11 +43,14 @@ def home():
 @app.post("/predict")
 def predict(data: InputData):
     arr = np.array(data.features).reshape(1, -1)
-    
+
     # Scale features before prediction
     arr_scaled = scaler.transform(arr)
-    prediction = model.predict(arr_scaled)
+
+    # predict_proba returns [[prob_class_0, prob_class_1]]
+    # We return class 1 (churn) probability
+    prediction = model.predict_proba(arr_scaled)[:, 1]
 
     return {
-        "prediction": float(prediction[0][0])
+        "prediction": float(prediction[0])
     }

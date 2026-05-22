@@ -1,3 +1,4 @@
 /churn_model.keras
+/churn_model.pkl
 /metadata.json
 /scaler.pkl

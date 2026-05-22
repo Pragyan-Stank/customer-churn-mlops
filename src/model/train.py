@@ -1,10 +1,11 @@
 # src/model/train.py
 
 import mlflow
-import tensorflow as tf
-from tensorflow import keras
+import mlflow.xgboost
+import xgboost as xgb
 import optuna
 import numpy as np
+from sklearn.metrics import roc_auc_score
 from mlflow import MlflowClient
 import json
 import os
@@ -27,74 +28,71 @@ MLFLOW_CONFIG = config["mlflow"]
 # -------------------------------
 def objective(trial, X_train, y_train, X_val, y_val):
 
-    tf.random.set_seed(TRAINING_CONFIG["random_seed"])
-
     with mlflow.start_run(nested=True):
 
         mlflow.set_tag("trial_number", trial.number)
 
-        # 🔹 Hyperparameters from config
+        # 🔹 Hyperparameters from config ranges
         params = {
+            "n_estimators": trial.suggest_int(
+                "n_estimators",
+                MODEL_CONFIG["n_estimators_min"],
+                MODEL_CONFIG["n_estimators_max"],
+            ),
+            "max_depth": trial.suggest_int(
+                "max_depth",
+                MODEL_CONFIG["max_depth_min"],
+                MODEL_CONFIG["max_depth_max"],
+            ),
             "learning_rate": trial.suggest_float(
                 "learning_rate",
                 MODEL_CONFIG["learning_rate_min"],
                 MODEL_CONFIG["learning_rate_max"],
-                log=True
+                log=True,
             ),
-            "units": trial.suggest_int(
-                "units",
-                MODEL_CONFIG["units_min"],
-                MODEL_CONFIG["units_max"]
+            "subsample": trial.suggest_float(
+                "subsample",
+                MODEL_CONFIG["subsample_min"],
+                MODEL_CONFIG["subsample_max"],
             ),
-            "dropout": trial.suggest_float(
-                "dropout",
-                MODEL_CONFIG["dropout_min"],
-                MODEL_CONFIG["dropout_max"]
+            "colsample_bytree": trial.suggest_float(
+                "colsample_bytree",
+                MODEL_CONFIG["colsample_bytree_min"],
+                MODEL_CONFIG["colsample_bytree_max"],
             ),
-            "batch_size": trial.suggest_categorical(
-                "batch_size",
-                MODEL_CONFIG["batch_size"]
+            "min_child_weight": trial.suggest_int(
+                "min_child_weight",
+                MODEL_CONFIG["min_child_weight_min"],
+                MODEL_CONFIG["min_child_weight_max"],
             ),
         }
 
         mlflow.log_params(params)
 
         # 🔹 Model
-        model = keras.Sequential([
-            keras.layers.Input(shape=(11,)),
-            keras.layers.Dense(params['units'], activation='relu'),
-            keras.layers.Dropout(params['dropout']),
-            keras.layers.Dense(1, activation='sigmoid'),
-        ])
-
-        model.compile(
-            optimizer=keras.optimizers.Adam(learning_rate=params["learning_rate"]),
-            loss="binary_crossentropy",
-            metrics=["accuracy", keras.metrics.AUC(name="auc")]
+        model = xgb.XGBClassifier(
+            **params,
+            objective="binary:logistic",
+            eval_metric="auc",
+            random_state=TRAINING_CONFIG["random_seed"],
+            use_label_encoder=False,
         )
 
-        # 🔹 Early stopping
-        early_stop = keras.callbacks.EarlyStopping(
-            monitor="val_auc",
-            patience=3,
-            restore_best_weights=True
-        )
-
-        # 🔹 Training
-        history = model.fit(
+        # 🔹 Training with early stopping
+        model.fit(
             X_train, y_train,
-            validation_data=(X_val, y_val),
-            epochs=MODEL_CONFIG["epochs"],
-            batch_size=params["batch_size"],
-            callbacks=[early_stop],
-            verbose=1
+            eval_set=[(X_val, y_val)],
+            verbose=False,
         )
 
-        val_auc = max(history.history["val_auc"])
+        # 🔹 Evaluate
+        y_pred_proba = model.predict_proba(X_val)[:, 1]
+        val_auc = roc_auc_score(y_val, y_pred_proba)
+
         mlflow.log_metric("val_auc", val_auc)
 
         # 🔹 Log model
-        mlflow.tensorflow.log_model(model, name="customer_churn_model")
+        mlflow.xgboost.log_model(model, artifact_path="customer_churn_model")
 
         return val_auc
 
@@ -163,7 +161,6 @@ def run_training(X_train, y_train, X_val, y_val):
 # -------------------------------
 if __name__ == "__main__":
 
-    # TEMP: load processed data (we’ll replace with DVC later)
     import pickle
 
     with open("data/processed/train.pkl", "rb") as f:

@@ -1,7 +1,10 @@
+# Inference-only dependencies (used by Docker backend image)
+# Intentionally lightweight — no MLflow, no Optuna, no DVC
 numpy
 pandas
-tensorflow
+xgboost
 scikit-learn
+joblib
 fastapi
 uvicorn
 python-multipart

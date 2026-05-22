@@ -1,4 +1,4 @@
-# ── Backend: FastAPI + TensorFlow inference ──
+# ── Backend: FastAPI + XGBoost inference ──
 FROM python:3.10-slim
 
 # Set working directory

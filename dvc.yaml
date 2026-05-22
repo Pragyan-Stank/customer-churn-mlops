@@ -55,6 +55,6 @@ stages:
     cmd: python src/model/export_model.py
     deps:
       - src/model/export_model.py
-    # outs:
-    #   - model/churn_model.keras
-    #   - model/metadata.json
+    outs:
+      - model/churn_model.pkl
+      - model/metadata.json

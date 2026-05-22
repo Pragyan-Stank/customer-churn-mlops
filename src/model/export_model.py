@@ -4,7 +4,8 @@ Used in DVC pipeline / CI before Docker build.
 """
 
 import mlflow
-import tensorflow as tf
+import mlflow.xgboost
+import joblib
 import os
 import json
 from mlflow.tracking import MlflowClient
@@ -17,7 +18,7 @@ MODEL_NAME = "customer-churn-model"
 MODEL_ALIAS = "champion"
 
 EXPORT_DIR = "model"
-MODEL_FILE = "churn_model.keras"
+MODEL_FILE = "churn_model.pkl"
 
 mlflow.set_tracking_uri(TRACKING_URI)
 client = MlflowClient()
@@ -43,7 +44,7 @@ print(f"Run ID: {run_id}")
 # Load model
 # -----------------------
 model_uri = f"models:/{MODEL_NAME}@{MODEL_ALIAS}"
-model = mlflow.tensorflow.load_model(model_uri)
+model = mlflow.xgboost.load_model(model_uri)
 
 # -----------------------
 # Save model
@@ -51,7 +52,7 @@ model = mlflow.tensorflow.load_model(model_uri)
 os.makedirs(EXPORT_DIR, exist_ok=True)
 
 model_path = os.path.join(EXPORT_DIR, MODEL_FILE)
-model.save(model_path)
+joblib.dump(model, model_path)
 
 # -----------------------
 # Save metadata
@@ -67,5 +68,5 @@ metadata = {
 with open(os.path.join(EXPORT_DIR, "metadata.json"), "w") as f:
     json.dump(metadata, f, indent=4)
 
-print(f"\n✅ Model exported to: {model_path}")
-print("✅ Metadata saved to: model/metadata.json")
+print(f"\nModel exported to: {model_path}")
+print("Metadata saved to: model/metadata.json")

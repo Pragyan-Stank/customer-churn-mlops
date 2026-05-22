@@ -6,4 +6,3 @@
 venv/
 mlruns/
 __pycache__/
-model/

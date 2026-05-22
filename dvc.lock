@@ -61,8 +61,8 @@ stages:
       size: 768233
     - path: src/model/train.py
       hash: md5
-      md5: 73a8a8cc47854ea16e8a1a0f9e3b9781
-      size: 5123
+      md5: 0a9ad1e4a05c0cd634bef8e440985c92
+      size: 4902
     params:
       params.yaml:
         model:
@@ -83,14 +83,14 @@ stages:
     outs:
     - path: artifacts/train_output.json
       hash: md5
-      md5: 541034e44d6d759eafdaca2d8cc5a027
+      md5: 000729245c8fdf565ef7afdede865b44
       size: 87
   evaluate:
     cmd: python src/model/evaluate.py
     deps:
     - path: artifacts/train_output.json
       hash: md5
-      md5: 541034e44d6d759eafdaca2d8cc5a027
+      md5: 000729245c8fdf565ef7afdede865b44
       size: 87
     - path: src/model/evaluate.py
       hash: md5
@@ -103,14 +103,14 @@ stages:
     outs:
     - path: artifacts/eval_output.json
       hash: md5
-      md5: d4bf50814ba8a5d40865c2c971cc59f2
+      md5: 75e50abaf5e7970dd3ef28d0d491d47b
       size: 129
   register:
     cmd: python src/model/register.py
     deps:
     - path: artifacts/eval_output.json
       hash: md5
-      md5: d4bf50814ba8a5d40865c2c971cc59f2
+      md5: 75e50abaf5e7970dd3ef28d0d491d47b
       size: 129
     - path: src/model/register.py
       hash: md5
@@ -126,14 +126,14 @@ stages:
     deps:
     - path: src/model/export_model.py
       hash: md5
-      md5: 1c4e5ae3e778d88cc2910cb5d6061cd2
-      size: 1640
+      md5: fabbfc797ad29ce95c4dbfe8f819c2e0
+      size: 1647
     outs:
-    - path: model/churn_model.keras
+    - path: model/churn_model.pkl
       hash: md5
-      md5: cb3178d946f52deb6c19bf78e18f179c
-      size: 37149
+      md5: 51309a973aed7f2614def378d049de1d
+      size: 977798
     - path: model/metadata.json
       hash: md5
-      md5: 4026c7e87e502b8fb9ceae3760ccb4d4
+      md5: 35f04a625c8a02d067511b89ee9613e1
       size: 203
