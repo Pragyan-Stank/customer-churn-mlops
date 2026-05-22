@@ -1,17 +1,40 @@
+# ── Python ──
 venv/
 __pycache__/
 *.pyc
 *.pyo
+*.pyd
+.Python
 
+# ── Data & training artifacts (not needed at inference) ──
 data/
 artifacts/
 mlruns/
 mlflow.db
-
+dvc.yaml
+dvc.lock
 .dvc/
-.dvc/cache/
+params.yaml
 
+# ── Source pipeline scripts (not needed at inference) ──
+src/
+
+# ── Frontend (built separately into its own image) ──
+frontend/
+
+# ── Version control ──
 .git/
 .gitignore
+.gitattributes
 
+# ── Docs & misc ──
+README.md
 *.log
+*.md
+.dockerignore
+
+# ── Editor & OS ──
+.vscode/
+.idea/
+*.DS_Store
+Thumbs.db

@@ -1,0 +1,106 @@
+# ============================================================
+#  Customer Churn MLOps — Docker Compose (Production)
+# ============================================================
+#
+#  Architecture:
+#    Browser ──► localhost:3000 (frontend / Nginx)
+#                    │
+#                    │  /api/*  ──► backend:8000 (FastAPI)
+#                    │              [internal Docker DNS]
+#
+#  Service Discovery:
+#    Docker Compose creates an internal bridge network called
+#    "churn-net". Every service is reachable by its SERVICE
+#    NAME as a hostname inside that network.
+#    The frontend Nginx resolves "backend" to the backend
+#    container's IP automatically — no hardcoded IPs needed.
+#
+#  ECS Compatibility:
+#    - Each service maps 1-to-1 with an ECS Task Definition.
+#    - On ECS/Fargate, service discovery is handled by
+#      AWS Cloud Map (still resolves by name, same pattern).
+#    - Replace the "networks" section with an ECS Service
+#      Connect or Cloud Map namespace when migrating.
+# ============================================================
+
+services:
+
+  # ──────────────────────────────────────────
+  # Backend — FastAPI + TensorFlow Inference
+  # ──────────────────────────────────────────
+  backend:
+    build:
+      context: .                      # Project root (contains app.py + model/)
+      dockerfile: Dockerfile          # Backend Dockerfile
+    container_name: churn-backend
+
+    # Internal-only: backend is NOT exposed to the host.
+    # The frontend Nginx reaches it via the internal network
+    # using http://backend:8000 — Docker DNS resolves "backend".
+    expose:
+      - "8000"
+
+    environment:
+      # Override these at deploy-time (ECS task env vars, .env file, etc.)
+      - MODEL_PATH=model/churn_model.keras
+      - SCALER_PATH=model/scaler.pkl
+      # Lock CORS to the frontend's public origin in production.
+      # "*" is acceptable here because the backend is NOT publicly
+      # exposed — only Nginx can reach it inside the Docker network.
+      - CORS_ORIGINS=*
+
+    networks:
+      - churn-net
+
+    restart: unless-stopped
+
+    healthcheck:
+      # Polls the FastAPI root endpoint every 30 s.
+      # Allows up to 3 × 10 s retries before marking unhealthy.
+      test: ["CMD", "python", "-c",
+             "import urllib.request; urllib.request.urlopen('http://localhost:8000/')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s   # Give TensorFlow time to load the model
+
+  # ──────────────────────────────────────────
+  # Frontend — Nginx Static Server + Proxy
+  # ──────────────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend             # Only the frontend/ directory
+      dockerfile: Dockerfile          # frontend/Dockerfile
+    container_name: churn-frontend
+
+    # Externally accessible: host port 3000 → container port 80
+    ports:
+      - "3000:80"
+
+    networks:
+      - churn-net
+
+    restart: unless-stopped
+
+    # Wait for backend to be healthy before starting Nginx.
+    # Nginx will still start if backend becomes unhealthy later —
+    # it will simply return 502 for /api/ requests until backend recovers.
+    depends_on:
+      backend:
+        condition: service_healthy
+
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:80/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+# ──────────────────────────────────────────
+# Shared Internal Network
+# ──────────────────────────────────────────
+# "bridge" is Docker's default driver for single-host deployments.
+# On ECS, this is replaced by the VPC / Service Connect networking.
+networks:
+  churn-net:
+    driver: bridge

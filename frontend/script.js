@@ -8,8 +8,17 @@
    Configuration
    ═══════════════════════════════════════════ */
 const CONFIG = {
-  /** Base URL for the FastAPI backend. Change this single value for deployment. */
-  API_BASE_URL: "http://localhost:8000",
+  /**
+   * API base URL — configured per environment:
+   *
+   *   Local dev  (python -m http.server):  "http://localhost:8000"
+   *   Docker Compose / Production:         "/api"
+   *
+   * In Docker Compose the browser hits Nginx on port 3000.
+   * Nginx reverse-proxies  /api/*  →  backend:8000/*  internally.
+   * No hardcoded container IPs. No localhost between containers.
+   */
+  API_BASE_URL: "/api",
 };
 
 /* ═══════════════════════════════════════════
