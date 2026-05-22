@@ -102,7 +102,8 @@ def objective(trial, X_train, y_train, X_val, y_val):
 # -------------------------------
 def run_training(X_train, y_train, X_val, y_val):
 
-    mlflow.set_tracking_uri(MLFLOW_CONFIG["tracking_uri"])
+    tracking_uri = os.getenv("MLFLOW_TRACKING_URI", MLFLOW_CONFIG["tracking_uri"])
+    mlflow.set_tracking_uri(tracking_uri)
     mlflow.set_experiment(MLFLOW_CONFIG["experiment_name"])
 
     with mlflow.start_run(run_name="optuna_training"):

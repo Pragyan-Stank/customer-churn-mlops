@@ -4,6 +4,7 @@ import mlflow
 from mlflow import MlflowClient
 import json
 import yaml
+import os
 
 
 # -------------------------------
@@ -42,7 +43,8 @@ def register_model():
     # -------------------------------
     # MLflow setup
     # -------------------------------
-    mlflow.set_tracking_uri(MLFLOW_CONFIG["tracking_uri"])
+    tracking_uri = os.getenv("MLFLOW_TRACKING_URI", MLFLOW_CONFIG["tracking_uri"])
+    mlflow.set_tracking_uri(tracking_uri)
 
     model_name = REGISTRY_CONFIG["model_name"]
     alias = REGISTRY_CONFIG["alias"]

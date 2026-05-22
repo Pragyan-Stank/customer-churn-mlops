@@ -13,7 +13,7 @@ from mlflow.tracking import MlflowClient
 # -----------------------
 # Config
 # -----------------------
-TRACKING_URI = "http://127.0.0.1:5000"
+TRACKING_URI = os.getenv("MLFLOW_TRACKING_URI", "http://127.0.0.1:5000")
 MODEL_NAME = "customer-churn-model"
 MODEL_ALIAS = "champion"
 

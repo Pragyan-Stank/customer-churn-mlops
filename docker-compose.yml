@@ -26,6 +26,31 @@
 services:
 
   # ──────────────────────────────────────────
+  # MLflow Tracking Server & Model Registry
+  # ──────────────────────────────────────────
+  mlflow:
+    build:
+      context: .
+      dockerfile: Dockerfile.mlflow
+    container_name: churn-mlflow
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./mlruns:/app/mlruns
+      - ./mlflow.db:/app/mlflow.db
+    command: mlflow server --backend-store-uri sqlite:///mlflow.db --default-artifact-root /app/mlruns --host 0.0.0.0 --port 5000
+    networks:
+      - churn-net
+    restart: unless-stopped
+    healthcheck:
+      # Verify MLflow server is responding to HTTP queries
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5000/')"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  # ──────────────────────────────────────────
   # Backend — FastAPI + XGBoost Inference
   # ──────────────────────────────────────────
   backend:
