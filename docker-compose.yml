@@ -80,14 +80,12 @@ services:
     restart: unless-stopped
 
     healthcheck:
-      # Polls the FastAPI root endpoint every 30 s.
-      # Allows up to 3 × 10 s retries before marking unhealthy.
       test: ["CMD", "python", "-c",
-             "import urllib.request; urllib.request.urlopen('http://localhost:8000/')"]
-      interval: 30s
-      timeout: 10s
+             "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 15s
+      timeout: 5s
       retries: 3
-      start_period: 60s   # Give TensorFlow time to load the model
+      start_period: 10s
 
   # ──────────────────────────────────────────
   # Frontend — Nginx Static Server + Proxy

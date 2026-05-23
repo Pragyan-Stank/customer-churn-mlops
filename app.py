@@ -39,7 +39,13 @@ class InputData(BaseModel):
 def home():
     return {"message": "Customer Churn Model API is running"}
 
-
+@app.get("/health")
+def health():
+    return {
+        "status": "healthy",
+        "model_loaded": model is not None
+    }
+    
 @app.post("/predict")
 def predict(data: InputData):
     arr = np.array(data.features).reshape(1, -1)
