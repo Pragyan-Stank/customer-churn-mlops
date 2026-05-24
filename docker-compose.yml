@@ -1,27 +1,3 @@
-# ============================================================
-#  Customer Churn MLOps — Docker Compose (Production)
-# ============================================================
-#
-#  Architecture:
-#    Browser ──► localhost:3000 (frontend / Nginx)
-#                    │
-#                    │  /api/*  ──► backend:8000 (FastAPI)
-#                    │              [internal Docker DNS]
-#
-#  Service Discovery:
-#    Docker Compose creates an internal bridge network called
-#    "churn-net". Every service is reachable by its SERVICE
-#    NAME as a hostname inside that network.
-#    The frontend Nginx resolves "backend" to the backend
-#    container's IP automatically — no hardcoded IPs needed.
-#
-#  ECS Compatibility:
-#    - Each service maps 1-to-1 with an ECS Task Definition.
-#    - On ECS/Fargate, service discovery is handled by
-#      AWS Cloud Map (still resolves by name, same pattern).
-#    - Replace the "networks" section with an ECS Service
-#      Connect or Cloud Map namespace when migrating.
-# ============================================================
 
 services:
 
@@ -59,9 +35,7 @@ services:
       dockerfile: Dockerfile          # Backend Dockerfile
     container_name: churn-backend
 
-    # Internal-only: backend is NOT exposed to the host.
-    # The frontend Nginx reaches it via the internal network
-    # using http://backend:8000 — Docker DNS resolves "backend".
+    
     expose:
       - "8000"
 
